@@ -12,16 +12,25 @@ class MainWindow():
     def __init__(self,master):
         self.master=master
         self.loggedin = False
-        self.mbar = tk.Frame(master,relief="raised",borderwidth=2)
-        self.mbar.pack(fill=tk.X)
+
+        self.mBar = tk.Menu(master,tearoff=0)
+        
+        self.fileMenu = tk.Menu(self.mBar,tearoff=0)
+        self.fileMenu.add_command(label="Login",command=self.login)
+        self.fileMenu.add_command(label="Close",command=quit)
+
+        self.mBar.add_cascade(label="File",menu=self.fileMenu)
+
+        self.runMenu = tk.Menu(self.mBar,tearoff=0)
+        self.runMenu.add_command(label="Run",command=self.FindWorlds)
+        self.mBar.add_cascade(label="Run",menu=self.runMenu)
+
         self.mainWindow=tk.Frame(master)
         self.mainWindow.pack(fill=tk.BOTH,expand=1)
         self.mainWindow.grid_columnconfigure(0, weight=2)
         self.mainWindow.grid_columnconfigure(1, weight=1)
         self.mainWindow.grid_rowconfigure(0, weight=1)
         self.mainWindow.grid_propagate(0)
-        self.fileBtn = self.makeFileBtn()
-        self.ProgramBtn = self.makeProgramBtn()
         self.dataWindow = tk.Frame(self.mainWindow,borderwidth=2,relief=tk.RAISED)
         self.dataWindow.grid(row=0,column=0,sticky=tk.W+tk.E+tk.N+tk.S)
         self.dataWindow.grid_propagate(0)
@@ -43,16 +52,6 @@ class MainWindow():
         
         self.APILib={'My Worlds':"https://api.deepworldgame.com/v1/worlds?residency=owned",'Unexplored':'https://api.deepworldgame.com/v1/worlds?development=0'}
 
-    def makeFileBtn(self):
-        fileBtn = tk.Menubutton(self.mbar,text="File",underline=0)
-        fileBtn.pack(side=tk.LEFT,padx="2m")
-        fileBtn.menu = tk.Menu(fileBtn)
-        fileBtn.menu.add_command(label="Login",command=self.login)
-        fileBtn.menu.entryconfig(0,state=tk.DISABLED)
-        fileBtn.menu.add_command(label="Close",command=quit)
-        fileBtn.menu.entryconfig(0,state=tk.DISABLED)
-        fileBtn['menu'] = fileBtn.menu
-        return fileBtn
 
     
     def login(self):
@@ -61,14 +60,6 @@ class MainWindow():
         self.mainText.set("Logged in!")
 
         
-    def makeProgramBtn(self,master=""):
-        ProgramBtn = tk.Menubutton(self.mbar,text="Programs",underline=0)
-        ProgramBtn.pack(side=tk.LEFT,padx="2m")
-        ProgramBtn.menu = tk.Menu(ProgramBtn)
-        ProgramBtn.menu.add_command(label="Run API",command=self.FindExWorlds)
-        ProgramBtn.menu.entryconfig(0,state=tk.DISABLED)
-        ProgramBtn['menu'] = ProgramBtn.menu
-        return ProgramBtn
 
 
 
@@ -92,7 +83,7 @@ class MainWindow():
         cont=sorted(cont,key=str.lower)
         return cont
 
-    def FindExWorlds(self):
+    def FindWorlds(self):
         if self.loggedin == True:
             self.callAPI("Unexplored")
             cont=["Unexplored worlds:\n"]
@@ -153,4 +144,6 @@ root = tk.Tk()
 root.title("Deepworld API v0.1")
 root.wm_state('zoomed')
 display = MainWindow(root)
+root.config(menu=display.mBar)
+
 root.mainloop()
